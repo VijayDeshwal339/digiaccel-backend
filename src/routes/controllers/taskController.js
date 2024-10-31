@@ -1,4 +1,4 @@
-const Task = require('../models/Task');
+const Task = require('../../models/Task');
 
 // Create Task
 exports.createTask = async (req, res) => {
@@ -54,13 +54,13 @@ exports.deleteTask = async (req, res) => {
 
 // Search Task
 exports.searchTasks = async (req, res) => {
-  const { keyword } = req.query;
+  const { keyword } = req.query; // Get the search keyword from query parameters
 
   try {
     const tasks = await Task.find({
       $or: [
-        { title: new RegExp(keyword, 'i') },
-        { description: new RegExp(keyword, 'i') }
+        { title: new RegExp(keyword, 'i') }, // Search in title
+        { description: new RegExp(keyword, 'i') } // Search in description
       ]
     });
     res.status(200).json(tasks);
@@ -68,6 +68,8 @@ exports.searchTasks = async (req, res) => {
     res.status(500).json({ message: 'Error searching tasks', error });
   }
 };
+
+
 
 
 exports.getTaskById = async (req, res) => {
@@ -103,3 +105,17 @@ exports.toggleTaskStatus = async (req, res) => {
 };
 
 
+// Count completed and not completed tasks
+exports.Count = async (req, res) => {
+  try {
+    const completedCount = await Task.countDocuments({ status: 'true' });
+    const notCompletedCount = await Task.countDocuments({ status: 'false' });
+
+    res.status(200).json({
+      completedTasks: completedCount,
+      notCompletedTasks: notCompletedCount,
+    });
+  } catch (error) {
+    res.status(500).json({ message: 'Server Error', error: error.message });
+  }
+};
