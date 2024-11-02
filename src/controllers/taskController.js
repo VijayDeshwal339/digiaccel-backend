@@ -1,4 +1,5 @@
 const Task = require('../models/Task');
+const moment = require('moment');
 
 // Create Task
 exports.createTask = async (req, res) => {
@@ -104,17 +105,47 @@ exports.toggleTaskStatus = async (req, res) => {
 };
 
 
-// Count completed and not completed tasks
-exports.Count = async (req, res) => {
+exports.getWeeklyTaskCounts = async (req, res) => {
   try {
-    const completedCount = await Task.countDocuments({ status: 'true' });
-    const notCompletedCount = await Task.countDocuments({ status: 'false' });
+    const currentWeekStart = moment().startOf('isoWeek'); // Start of the current week
+    const currentWeekEnd = moment().endOf('isoWeek'); // End of the current week
 
-    res.status(200).json({
-      completedTasks: completedCount,
-      notCompletedTasks: notCompletedCount,
+    // Fetch tasks created within the current week
+    const tasks = await Task.find({
+      date: {
+        $gte: currentWeekStart.toDate(),
+        $lte: currentWeekEnd.toDate(),
+      },
     });
+
+    const weeklySummary = {};
+
+    tasks.forEach((task) => {
+      const weekStart = moment(task.date).startOf('isoWeek').format('YYYY-MM-DD');
+      const weekEnd = moment(task.date).endOf('isoWeek').format('YYYY-MM-DD');
+      const weekRange = `${weekStart} - ${weekEnd}`;
+
+      if (!weeklySummary[weekRange]) {
+        weeklySummary[weekRange] = {
+          completed: 0,
+          open: 0,
+          tasks: []
+        };
+      }
+
+      // Count task based on status
+      if (task.status === 'true') {
+        weeklySummary[weekRange].completed += 1;
+      } else {
+        weeklySummary[weekRange].open += 1;
+      }
+
+      // Add task details to the week's task list
+      weeklySummary[weekRange].tasks.push(task);
+    });
+
+    res.status(200).json({ weeklySummary });
   } catch (error) {
-    res.status(500).json({ message: 'Server Error', error: error.message });
+    res.status(500).json({ message: 'Error counting tasks by week', error });
   }
 };
