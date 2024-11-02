@@ -107,10 +107,10 @@ exports.toggleTaskStatus = async (req, res) => {
 
 exports.getWeeklyTaskCounts = async (req, res) => {
   try {
-    const currentWeekStart = moment().startOf('isoWeek'); // Start of the current week
-    const currentWeekEnd = moment().endOf('isoWeek'); // End of the current week
+    const currentWeekStart = moment().startOf('isoWeek');
+    const currentWeekEnd = moment().endOf('isoWeek');
 
-    // Fetch tasks created within the current week
+   
     const tasks = await Task.find({
       date: {
         $gte: currentWeekStart.toDate(),
@@ -133,14 +133,14 @@ exports.getWeeklyTaskCounts = async (req, res) => {
         };
       }
 
-      // Count task based on status
+     
       if (task.status === 'true') {
         weeklySummary[weekRange].completed += 1;
       } else {
         weeklySummary[weekRange].open += 1;
       }
 
-      // Add task details to the week's task list
+      
       weeklySummary[weekRange].tasks.push(task);
     });
 
