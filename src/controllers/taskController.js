@@ -1,4 +1,4 @@
-const Task = require('../../models/Task');
+const Task = require('../models/Task');
 
 // Create Task
 exports.createTask = async (req, res) => {
@@ -54,13 +54,13 @@ exports.deleteTask = async (req, res) => {
 
 // Search Task
 exports.searchTasks = async (req, res) => {
-  const { keyword } = req.query; // Get the search keyword from query parameters
+  const { keyword } = req.query; 
 
   try {
     const tasks = await Task.find({
       $or: [
-        { title: new RegExp(keyword, 'i') }, // Search in title
-        { description: new RegExp(keyword, 'i') } // Search in description
+        { title: new RegExp(keyword, 'i') }, 
+        { description: new RegExp(keyword, 'i') } 
       ]
     });
     res.status(200).json(tasks);
@@ -71,7 +71,7 @@ exports.searchTasks = async (req, res) => {
 
 
 
-
+// Get task By id
 exports.getTaskById = async (req, res) => {
   const { id } = req.params;
 
@@ -87,7 +87,6 @@ exports.getTaskById = async (req, res) => {
 };
 
 // Toggle Task Status
-// Controller function to toggle task status
 exports.toggleTaskStatus = async (req, res) => {
   const { id } = req.params;
   try {
